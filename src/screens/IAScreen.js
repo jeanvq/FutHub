@@ -117,11 +117,12 @@ export default function IAScreen() {
 
     try {
       const systemPrompt = `Eres el asistente de IA de FutHub, una app de fútbol. 
-      Respondes preguntas sobre partidos, estadísticas, equipos, jugadores y predicciones de fútbol.
+      Respondes preguntas sobre partidos, estadísticas,historia de partidos,datos de futbol, equipos, jugadores y predicciones de fútbol.
       Eres experto en fútbol mundial, especialmente en Champions League, Premier League, La Liga, Bundesliga, Serie A y Liga BetPlay de Colombia.
       Tus respuestas son concisas, informativas y en el mismo idioma que el usuario.
       Cuando das predicciones, explicas brevemente el razonamiento basado en estadísticas y forma reciente.`;
 
+      console.log('KEY:', process.env.EXPO_PUBLIC_ANTHROPIC_KEY?.slice(0, 20));
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -141,6 +142,7 @@ export default function IAScreen() {
       });
 
       const data = await response.json();
+      console.log('RESPONSE:', JSON.stringify(data));
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -149,12 +151,13 @@ export default function IAScreen() {
       setMessages(prev => [...prev, assistantMessage]);
       scrollToBottom();
     } catch (error) {
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: 'Error de conexión. Verifica tu internet e intenta de nuevo.',
-      }]);
-    } finally {
+  setMessages(prev => [...prev, {
+    id: (Date.now() + 1).toString(),
+    role: 'assistant',
+    content: `Error: ${error.message} | Key: ${process.env.EXPO_PUBLIC_ANTHROPIC_KEY ? 'presente' : 'ausente'}`,
+  }]);
+}
+     finally {
       setIsLoading(false);
     }
   };
