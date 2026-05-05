@@ -16,7 +16,6 @@ const QUICK_CHIPS = [
 
 function MessageBubble({ message }) {
   const isUser = message.role === 'user';
-
   return (
     <View style={{
       flexDirection: 'row',
@@ -26,23 +25,15 @@ function MessageBubble({ message }) {
     }}>
       {!isUser && (
         <View style={{
-          width: 32, height: 32,
-          borderRadius: 16,
-          backgroundColor: colors.card,
-          borderWidth: 0.5,
-          borderColor: colors.cardBorder,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: 8,
-          alignSelf: 'flex-end',
+          width: 32, height: 32, borderRadius: 16,
+          backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+          alignItems: 'center', justifyContent: 'center', marginRight: 8, alignSelf: 'flex-end',
         }}>
           <Text style={{ fontSize: 16 }}>🤖</Text>
         </View>
       )}
-
       <View style={{
-        maxWidth: '75%',
-        borderRadius: isUser ? 18 : 18,
+        maxWidth: '75%', borderRadius: 18,
         borderBottomRightRadius: isUser ? 4 : 18,
         borderBottomLeftRadius: isUser ? 18 : 4,
         overflow: 'hidden',
@@ -50,8 +41,7 @@ function MessageBubble({ message }) {
         {isUser ? (
           <LinearGradient
             colors={[colors.gradientStart, colors.gradientMid]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             style={{ paddingHorizontal: 14, paddingVertical: 10 }}
           >
             <Text style={{ color: colors.background, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
@@ -60,11 +50,8 @@ function MessageBubble({ message }) {
           </LinearGradient>
         ) : (
           <View style={{
-            backgroundColor: colors.card,
-            borderWidth: 0.5,
-            borderColor: colors.cardBorder,
-            paddingHorizontal: 14,
-            paddingVertical: 10,
+            backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+            paddingHorizontal: 14, paddingVertical: 10,
           }}>
             <Text style={{ color: colors.textPrimary, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
               {message.content}
@@ -72,18 +59,11 @@ function MessageBubble({ message }) {
           </View>
         )}
       </View>
-
       {isUser && (
         <View style={{
-          width: 32, height: 32,
-          borderRadius: 16,
-          backgroundColor: colors.card,
-          borderWidth: 0.5,
-          borderColor: colors.cardBorder,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginLeft: 8,
-          alignSelf: 'flex-end',
+          width: 32, height: 32, borderRadius: 16,
+          backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+          alignItems: 'center', justifyContent: 'center', marginLeft: 8, alignSelf: 'flex-end',
         }}>
           <Text style={{ fontSize: 16 }}>👤</Text>
         </View>
@@ -94,32 +74,17 @@ function MessageBubble({ message }) {
 
 function TypingIndicator() {
   return (
-    <View style={{
-      flexDirection: 'row',
-      paddingHorizontal: 16,
-      marginBottom: 12,
-      alignItems: 'center',
-      gap: 8,
-    }}>
+    <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginBottom: 12, alignItems: 'center', gap: 8 }}>
       <View style={{
-        width: 32, height: 32,
-        borderRadius: 16,
-        backgroundColor: colors.card,
-        borderWidth: 0.5,
-        borderColor: colors.cardBorder,
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: 32, height: 32, borderRadius: 16,
+        backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+        alignItems: 'center', justifyContent: 'center',
       }}>
         <Text style={{ fontSize: 16 }}>🤖</Text>
       </View>
       <View style={{
-        backgroundColor: colors.card,
-        borderWidth: 0.5,
-        borderColor: colors.cardBorder,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        borderRadius: 18,
-        borderBottomLeftRadius: 4,
+        backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+        paddingHorizontal: 14, paddingVertical: 12, borderRadius: 18, borderBottomLeftRadius: 4,
       }}>
         <ActivityIndicator size="small" color={colors.live} />
       </View>
@@ -133,36 +98,24 @@ export default function IAScreen() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([
-    {
-      id: '0',
-      role: 'assistant',
-      content: t('ia_welcome'),
-    }
+    { id: '0', role: 'assistant', content: t('ia_welcome') }
   ]);
 
   const scrollToBottom = () => {
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
   const sendMessage = async (text) => {
     const messageText = text || input.trim();
     if (!messageText || isLoading) return;
 
-    const userMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: messageText,
-    };
-
+    const userMessage = { id: Date.now().toString(), role: 'user', content: messageText };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
     scrollToBottom();
 
     try {
-      // Contexto del sistema para el asistente
       const systemPrompt = `Eres el asistente de IA de FutHub, una app de fútbol. 
       Respondes preguntas sobre partidos, estadísticas, equipos, jugadores y predicciones de fútbol.
       Eres experto en fútbol mundial, especialmente en Champions League, Premier League, La Liga, Bundesliga, Serie A y Liga BetPlay de Colombia.
@@ -173,7 +126,7 @@ export default function IAScreen() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': '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',
+          'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_KEY,
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
@@ -181,10 +134,7 @@ export default function IAScreen() {
           max_tokens: 500,
           system: systemPrompt,
           messages: [
-            ...messages.filter(m => m.id !== '0').map(m => ({
-              role: m.role,
-              content: m.content,
-            })),
+            ...messages.filter(m => m.id !== '0').map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: messageText },
           ],
         }),
@@ -196,17 +146,14 @@ export default function IAScreen() {
         role: 'assistant',
         content: data.content?.[0]?.text || 'Lo siento, hubo un error. Intenta de nuevo.',
       };
-
       setMessages(prev => [...prev, assistantMessage]);
       scrollToBottom();
-
     } catch (error) {
-      const errorMessage = {
+      setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: 'Error de conexión. Verifica tu internet e intenta de nuevo.',
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -214,52 +161,38 @@ export default function IAScreen() {
 
   const handleQuickChip = (key) => {
     const questions = {
-      predictions: t('ia_quick_predictions') + ' - ¿Quién tiene más probabilidades de ganar hoy?',
-      curious: t('ia_quick_curious') + ' - Cuéntame un dato curioso del fútbol',
-      analysis: t('ia_quick_analysis') + ' - Analiza el partido más importante de hoy',
+      predictions: '¿Quién tiene más probabilidades de ganar hoy?',
+      curious: 'Cuéntame un dato curioso del fútbol',
+      analysis: 'Analiza el partido más importante de hoy',
     };
     sendMessage(questions[key]);
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-
-      {/* Header */}
       <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        borderBottomWidth: 0.5,
-        borderBottomColor: colors.cardBorder,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+        paddingHorizontal: 16, paddingVertical: 14,
+        borderBottomWidth: 0.5, borderBottomColor: colors.cardBorder,
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <LinearGradient
             colors={[colors.gradientStart, colors.gradientMid]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' }}
           >
             <Text style={{ fontSize: 18 }}>🤖</Text>
           </LinearGradient>
           <View>
-            <Text style={{ color: colors.textPrimary, fontFamily: fonts.bold, fontSize: 15 }}>
-              FutHub IA
-            </Text>
-            <Text style={{ color: colors.live, fontFamily: fonts.regular, fontSize: 11 }}>
-              ● En línea
-            </Text>
+            <Text style={{ color: colors.textPrimary, fontFamily: fonts.bold, fontSize: 15 }}>FutHub IA</Text>
+            <Text style={{ color: colors.live, fontFamily: fonts.regular, fontSize: 11 }}>● En línea</Text>
           </View>
         </View>
         <TouchableOpacity onPress={() => setMessages([{ id: '0', role: 'assistant', content: t('ia_welcome') }])}>
-          <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 13 }}>
-            🗑 Limpiar
-          </Text>
+          <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 13 }}>🗑 Limpiar</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Messages */}
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -270,30 +203,16 @@ export default function IAScreen() {
         ListFooterComponent={isLoading ? <TypingIndicator /> : null}
       />
 
-      {/* Quick chips */}
       {messages.length <= 1 && (
-        <View style={{
-          flexDirection: 'row',
-          gap: 8,
-          paddingHorizontal: 16,
-          paddingBottom: 12,
-        }}>
+        <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>
           {QUICK_CHIPS.map(chip => (
             <TouchableOpacity
               key={chip.key}
               onPress={() => handleQuickChip(chip.key)}
               style={{
-                flex: 1,
-                backgroundColor: colors.card,
-                borderWidth: 0.5,
-                borderColor: colors.cardBorder,
-                borderRadius: 20,
-                paddingVertical: 8,
-                paddingHorizontal: 10,
-                alignItems: 'center',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                gap: 4,
+                flex: 1, backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+                borderRadius: 20, paddingVertical: 8, paddingHorizontal: 10,
+                alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 4,
               }}
             >
               <Text style={{ fontSize: 14 }}>{chip.icon}</Text>
@@ -305,57 +224,31 @@ export default function IAScreen() {
         </View>
       )}
 
-      {/* Input */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={0}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderTopWidth: 0.5,
-          borderTopColor: colors.cardBorder,
-          gap: 10,
+          flexDirection: 'row', alignItems: 'center',
+          paddingHorizontal: 16, paddingVertical: 12,
+          borderTopWidth: 0.5, borderTopColor: colors.cardBorder, gap: 10,
         }}>
           <TextInput
             style={{
-              flex: 1,
-              backgroundColor: colors.card,
-              borderWidth: 0.5,
-              borderColor: colors.cardBorder,
-              borderRadius: 24,
-              paddingHorizontal: 16,
-              paddingVertical: 10,
-              color: colors.textPrimary,
-              fontFamily: fonts.regular,
-              fontSize: 14,
-              maxHeight: 100,
+              flex: 1, backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+              borderRadius: 24, paddingHorizontal: 16, paddingVertical: 10,
+              color: colors.textPrimary, fontFamily: fonts.regular, fontSize: 14, maxHeight: 100,
             }}
             placeholder={t('ia_placeholder')}
             placeholderTextColor={colors.textTertiary}
             value={input}
             onChangeText={setInput}
             multiline
-            onSubmitEditing={() => sendMessage()}
           />
-          <TouchableOpacity
-            onPress={() => sendMessage()}
-            disabled={!input.trim() || isLoading}
-          >
+          <TouchableOpacity onPress={() => sendMessage()} disabled={!input.trim() || isLoading}>
             <LinearGradient
-              colors={input.trim() && !isLoading
-                ? [colors.gradientStart, colors.gradientMid]
-                : [colors.card, colors.card]
-              }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              colors={input.trim() && !isLoading ? [colors.gradientStart, colors.gradientMid] : [colors.card, colors.card]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={{
-                width: 44, height: 44,
-                borderRadius: 22,
-                alignItems: 'center',
-                justifyContent: 'center',
+                width: 44, height: 44, borderRadius: 22,
+                alignItems: 'center', justifyContent: 'center',
                 borderWidth: 0.5,
                 borderColor: input.trim() && !isLoading ? colors.gradientStart : colors.cardBorder,
               }}
@@ -365,7 +258,6 @@ export default function IAScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-
     </SafeAreaView>
   );
 }
