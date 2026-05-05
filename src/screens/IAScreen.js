@@ -173,7 +173,7 @@ export default function IAScreen() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'TU_API_KEY_AQUI',
+          'x-api-key': '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',
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
