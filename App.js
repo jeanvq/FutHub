@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
 import {
@@ -8,11 +9,17 @@ import {
   Inter_800ExtraBold,
 } from '@expo-google-fonts/inter';
 import { NavigationContainer } from '@react-navigation/native';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './src/config/firebase';
 import TabNavigator from './src/navigation/TabNavigator';
+import AuthNavigator from './src/navigation/AuthNavigator';
 import { colors } from './src/theme';
 import './src/theme/i18n';
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_600SemiBold,
@@ -20,7 +27,15 @@ export default function App() {
     Inter_800ExtraBold,
   });
 
-  if (!fontsLoaded) {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setAuthLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  if (!fontsLoaded || authLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator color={colors.gradientStart} size="large" />
@@ -31,7 +46,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <StatusBar style="light" backgroundColor={colors.background} />
-      <TabNavigator />
+      {user ? <TabNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }
