@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
@@ -76,7 +76,7 @@ export default function MatchDetailScreen({ route, navigation }) {
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ fontSize: 40, marginBottom: 8 }}>{match.home.logo}</Text>
+            <Image source={{ uri: match.home.logo }} style={{ width: 60, height: 60, marginBottom: 8 }} resizeMode="contain" />
             <Text style={{ color: colors.textPrimary, fontFamily: fonts.bold, fontSize: 14, textAlign: 'center' }}>
               {match.home.name}
             </Text>
@@ -88,7 +88,7 @@ export default function MatchDetailScreen({ route, navigation }) {
             <Text style={{ color: colors.live, fontFamily: fonts.bold, fontSize: 14 }}>{match.minute}</Text>
           </View>
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ fontSize: 40, marginBottom: 8 }}>{match.away.logo}</Text>
+            <Image source={{ uri: match.away.logo }} style={{ width: 60, height: 60, marginBottom: 8 }} resizeMode="contain" />
             <Text style={{ color: colors.textPrimary, fontFamily: fonts.bold, fontSize: 14, textAlign: 'center' }}>
               {match.away.name}
             </Text>
