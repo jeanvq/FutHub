@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { colors, fonts } from '../theme';
 
@@ -23,6 +23,33 @@ function TabIcon({ icon, label, focused }) {
         color: focused ? colors.tabActive : colors.tabInactive,
       }}>
         {label}
+      </Text>
+    </View>
+  );
+}
+
+function HomeTabIcon({ focused }) {
+  return (
+    <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 6 }}>
+      <View style={{
+        width: 28, height: 28, marginBottom: 2,
+        borderRadius: 8,
+        borderWidth: focused ? 1.5 : 0,
+        borderColor: colors.tabActive,
+        overflow: 'hidden',
+      }}>
+        <Image
+          source={require('../../assets/futhub-icon.png')}
+          style={{ width: '100%', height: '100%' }}
+          resizeMode="cover"
+        />
+      </View>
+      <Text style={{
+        fontSize: 10,
+        fontFamily: focused ? fonts.semibold : fonts.regular,
+        color: focused ? colors.tabActive : colors.tabInactive,
+      }}>
+        Inicio
       </Text>
     </View>
   );
@@ -54,7 +81,7 @@ export default function TabNavigator() {
       }}
     >
       <Tab.Screen name="Inicio" component={HomeStack}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="🏠" label={t('tab_home')} focused={focused} /> }}
+        options={{ tabBarIcon: ({ focused }) => <HomeTabIcon focused={focused} /> }}
       />
       <Tab.Screen name="Favoritos" component={FavoritosScreen}
         options={{ tabBarIcon: ({ focused }) => <TabIcon icon="⭐" label={t('tab_favorites')} focused={focused} /> }}

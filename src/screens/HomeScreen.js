@@ -62,11 +62,16 @@ function MatchCard({ match, onPress, t, isLive }) {
           paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6,
         }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={{ fontSize: 12 }}>{match.leagueIcon}</Text>
-            <Text style={{ color: colors.textSecondary, fontFamily: fonts.semibold, fontSize: 11 }}>
-              {match.league}
-            </Text>
-          </View>
+  {match.leagueLogo ? (
+    <Image source={{ uri: match.leagueLogo }} style={{ width: 18, height: 18 }} resizeMode="contain" />
+  ) : (
+    <Text style={{ fontSize: 12 }}>{match.leagueIcon}</Text>
+  )}
+  <Text style={{ color: colors.textSecondary, fontFamily: fonts.semibold, fontSize: 11 }}>
+    {match.league}
+  </Text>
+  <Text style={{ fontSize: 11 }}>{match.leagueCountryFlag}</Text>
+</View>
           {isLive && <LiveBadge />}
         </View>
 

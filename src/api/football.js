@@ -1,8 +1,6 @@
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY = process.env.EXPO_PUBLIC_FOOTBALL_KEY;
 
-console.log('FOOTBALL KEY:', API_KEY?.slice(0, 15));
-
 const headers = {
   'x-apisports-key': API_KEY,
 };
@@ -34,7 +32,6 @@ export async function getTodayMatches() {
     const today = new Date().toISOString().split('T')[0];
     const response = await fetch(`${BASE_URL}/fixtures?date=${today}`, { headers });
     const data = await response.json();
-    console.log('TODAY MATCHES:', JSON.stringify(data).slice(0, 300));
     return data.response || [];
   } catch (error) {
     console.error('Error fetching today matches:', error);
@@ -99,12 +96,37 @@ export async function getFixtureEvents(fixtureId) {
   }
 }
 
+function getCountryFlag(country) {
+  const flags = {
+    'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'Spain': '🇪🇸',
+    'Germany': '🇩🇪',
+    'Italy': '🇮🇹',
+    'France': '🇫🇷',
+    'Colombia': '🇨🇴',
+    'World': '🌍',
+    'Netherlands': '🇳🇱',
+    'Portugal': '🇵🇹',
+    'Brazil': '🇧🇷',
+    'Argentina': '🇦🇷',
+    'Mexico': '🇲🇽',
+    'USA': '🇺🇸',
+    'Belgium': '🇧🇪',
+    'Turkey': '🇹🇷',
+    'Greece': '🇬🇷',
+    'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  };
+  return flags[country] || '🌐';
+}
+
 export function formatMatch(fixture) {
   return {
     id: fixture.fixture.id.toString(),
     league: fixture.league.name,
-    leagueIcon: getLeagueIcon(fixture.league.id),
+    leagueIcon: getCountryFlag(fixture.league.country),
     leagueLogo: fixture.league.logo,
+    leagueCountry: fixture.league.country,
+    leagueCountryFlag: getCountryFlag(fixture.league.country),
     home: {
       name: fixture.teams.home.name,
       logo: fixture.teams.home.logo,
@@ -121,16 +143,4 @@ export function formatMatch(fixture) {
     status: fixture.fixture.status.short,
     prediction: Math.floor(Math.random() * 30) + 55,
   };
-}
-
-function getLeagueIcon(leagueId) {
-  const icons = {
-    2: '🏆',
-    39: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-    140: '🇪🇸',
-    78: '🇩🇪',
-    135: '🇮🇹',
-    239: '🇨🇴',
-  };
-  return icons[leagueId] || '⚽';
 }
