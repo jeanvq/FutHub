@@ -12,6 +12,12 @@ export const LEAGUES = {
   BUNDESLIGA: 78,
   SERIE_A: 135,
   LIGA_BETPLAY: 239,
+  LIBERTADORES: 13,
+  SUDAMERICANA: 11,
+  LIGUE_1: 61,
+  LIGA_MX: 262,
+  BRASILEIRAO: 71,
+  ARGENTINA_LIGA: 128,
 };
 
 const SEASON = 2024;
@@ -114,7 +120,7 @@ function getCountryFlag(country) {
     'Belgium': '🇧🇪',
     'Turkey': '🇹🇷',
     'Greece': '🇬🇷',
-    'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+    'South America': '🌎',
   };
   return flags[country] || '🌐';
 }
