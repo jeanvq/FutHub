@@ -2,7 +2,7 @@
 
 > **Live. Analyze. Win.** — Your AI-powered football hub
 
-FutHub is a mobile football app with a built-in AI assistant, built with React Native and Expo. Available for iOS and Android.
+FutHub is a mobile football app with a built-in AI assistant, built with React Native and Expo. Soon Available for iOS and Android.
 
 ---
 
