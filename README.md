@@ -125,3 +125,5 @@ FutHub/
 ---
 
 ## 📄 License
+
+MIT License
