@@ -13,6 +13,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './src/config/firebase';
 import TabNavigator from './src/navigation/TabNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
+import { UserProvider } from './src/context/UserContext';
 import { colors } from './src/theme';
 import './src/theme/i18n';
 
@@ -46,7 +47,13 @@ export default function App() {
   return (
     <NavigationContainer>
       <StatusBar style="light" backgroundColor={colors.background} />
-      {user ? <TabNavigator /> : <AuthNavigator />}
+      {user ? (
+        <UserProvider>
+          <TabNavigator />
+        </UserProvider>
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 }

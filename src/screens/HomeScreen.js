@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { colors, fonts } from '../theme';
 import { getLiveMatches, getTodayMatches, getUpcomingFixtures, formatMatch, LEAGUES } from '../api/football';
+import { useUser } from '../context/UserContext';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY = process.env.EXPO_PUBLIC_FOOTBALL_KEY;
@@ -27,11 +28,7 @@ function LiveBadge() {
 function TeamLogo({ logo, name }) {
   if (logo) {
     return (
-      <Image
-        source={{ uri: logo }}
-        style={{ width: 40, height: 40, marginBottom: 4 }}
-        resizeMode="contain"
-      />
+      <Image source={{ uri: logo }} style={{ width: 40, height: 40, marginBottom: 4 }} resizeMode="contain" />
     );
   }
   return (
@@ -48,7 +45,22 @@ function TeamLogo({ logo, name }) {
   );
 }
 
-function MatchCard({ match, onPress, t, isLive }) {
+function SectionLabel({ title, icon }) {
+  return (
+    <View style={{
+      flexDirection: 'row', alignItems: 'center', gap: 6,
+      marginBottom: 10, marginTop: 4,
+    }}>
+      <Text style={{ fontSize: 14 }}>{icon}</Text>
+      <Text style={{ color: colors.textSecondary, fontFamily: fonts.bold, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+        {title}
+      </Text>
+      <View style={{ flex: 1, height: 0.5, backgroundColor: colors.cardBorder, marginLeft: 6 }} />
+    </View>
+  );
+}
+
+function MatchCard({ match, onPress, isLive }) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
       <View style={{
@@ -112,8 +124,7 @@ function MatchCard({ match, onPress, t, isLive }) {
   );
 }
 
-       
-function SearchResult({ item, onPress }) {
+function SearchResult({ item, onPress, onFavorite, isFav }) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
       <View style={{
@@ -134,14 +145,14 @@ function SearchResult({ item, onPress }) {
           </View>
         )}
         <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.textPrimary, fontFamily: fonts.semibold, fontSize: 14 }}>
-            {item.name}
-          </Text>
+          <Text style={{ color: colors.textPrimary, fontFamily: fonts.semibold, fontSize: 14 }}>{item.name}</Text>
           <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 12 }}>
             {item.type === 'league' ? item.country : item.league}
           </Text>
         </View>
-        <Text style={{ fontSize: 16, color: colors.textTertiary }}>›</Text>
+        <TouchableOpacity onPress={(e) => { e.stopPropagation(); onFavorite(item); }} style={{ padding: 4 }}>
+          <Text style={{ fontSize: 22 }}>{isFav ? '💚' : '🤍'}</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -149,6 +160,7 @@ function SearchResult({ item, onPress }) {
 
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
+  const { favoriteTeams, favoriteLeagues, toggleFavoriteTeam, toggleFavoriteLeague, isFavoriteTeam, isFavoriteLeague } = useUser();
   const [activeTab, setActiveTab] = useState(0);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -162,11 +174,8 @@ export default function HomeScreen({ navigation }) {
   }, [activeTab]);
 
   useEffect(() => {
-    if (searchQuery.length >= 3) {
-      handleSearch(searchQuery);
-    } else {
-      setSearchResults([]);
-    }
+    if (searchQuery.length >= 3) handleSearch(searchQuery);
+    else setSearchResults([]);
   }, [searchQuery]);
 
   const loadMatches = async () => {
@@ -202,19 +211,13 @@ export default function HomeScreen({ navigation }) {
       const leaguesData = await leaguesRes.json();
 
       const teams = (teamsData.response || []).slice(0, 5).map(t => ({
-        id: t.team.id,
-        name: t.team.name,
-        logo: t.team.logo,
-        league: t.venue?.city || '',
-        type: 'team',
+        id: t.team.id, name: t.team.name, logo: t.team.logo,
+        league: t.venue?.city || '', type: 'team',
       }));
 
       const leagues = (leaguesData.response || []).slice(0, 3).map(l => ({
-        id: l.league.id,
-        name: l.league.name,
-        logo: l.league.logo,
-        country: l.country.name,
-        type: 'league',
+        id: l.league.id, name: l.league.name, logo: l.league.logo,
+        country: l.country.name, type: 'league',
       }));
 
       setSearchResults([...leagues, ...teams]);
@@ -224,6 +227,21 @@ export default function HomeScreen({ navigation }) {
       setSearching(false);
     }
   };
+
+  // Separar favoritos del resto
+  const favoriteMatches = matches.filter(match => {
+    const homeFav = isFavoriteTeam(match.home.id);
+    const awayFav = isFavoriteTeam(match.away.id);
+    const leagueFav = isFavoriteLeague(match.leagueId);
+    return homeFav || awayFav || leagueFav;
+  });
+
+  const otherMatches = matches.filter(match => {
+    const homeFav = isFavoriteTeam(match.home.id);
+    const awayFav = isFavoriteTeam(match.away.id);
+    const leagueFav = isFavoriteLeague(match.leagueId);
+    return !homeFav && !awayFav && !leagueFav;
+  });
 
   const tabs = [t('tab_live'), t('tab_today'), t('tab_upcoming')];
 
@@ -235,6 +253,7 @@ export default function HomeScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           {!showSearch ? (
             <>
@@ -289,18 +308,25 @@ export default function HomeScreen({ navigation }) {
           )}
         </View>
 
+        {/* Search results */}
         {showSearch && (
           <View style={{ marginBottom: 16 }}>
-            {searching && (
-              <ActivityIndicator color={colors.live} size="small" style={{ marginVertical: 20 }} />
-            )}
+            {searching && <ActivityIndicator color={colors.live} size="small" style={{ marginVertical: 20 }} />}
             {searchResults.map(item => (
-              <SearchResult
-                key={`${item.type}-${item.id}`}
-                item={item}
-                onPress={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
-              />
-            ))}
+  <SearchResult
+    key={`${item.type}-${item.id}`}
+    item={item}
+    onPress={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
+    isFav={item.type === 'team' ? isFavoriteTeam(item.id) : isFavoriteLeague(item.id)}
+    onFavorite={(item) => {
+      if (item.type === 'team') {
+        toggleFavoriteTeam({ id: item.id, name: item.name, logo: item.logo, country: item.league });
+      } else {
+        toggleFavoriteLeague({ id: item.id, name: item.name, logo: item.logo, country: item.country });
+      }
+    }}
+  />
+))}
             {!searching && searchQuery.length >= 3 && searchResults.length === 0 && (
               <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 14, textAlign: 'center', marginTop: 20 }}>
                 No results found
@@ -314,8 +340,10 @@ export default function HomeScreen({ navigation }) {
           </View>
         )}
 
+        {/* Main content */}
         {!showSearch && (
           <>
+            {/* Tabs */}
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}>
               {tabs.map((tab, i) => (
                 <TouchableOpacity key={tab} onPress={() => setActiveTab(i)}>
@@ -338,15 +366,6 @@ export default function HomeScreen({ navigation }) {
               ))}
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <Text style={{ color: colors.textPrimary, fontFamily: fonts.bold, fontSize: 16 }}>
-                {tabs[activeTab]}
-              </Text>
-              <TouchableOpacity onPress={loadMatches}>
-                <Text style={{ color: colors.live, fontFamily: fonts.semibold, fontSize: 13 }}>↻ Refresh</Text>
-              </TouchableOpacity>
-            </View>
-
             {loading ? (
               <View style={{ paddingTop: 60, alignItems: 'center' }}>
                 <ActivityIndicator color={colors.live} size="large" />
@@ -362,16 +381,43 @@ export default function HomeScreen({ navigation }) {
                 </Text>
               </View>
             ) : (
-              matches.map(match => (
-                <MatchCard
-                  key={match.id}
-                  match={match}
-                  t={t}
-                  isLive={activeTab === 0}
-                  onPress={() => navigation.navigate('MatchDetail', { match })}
-                />
-              ))
+              <>
+                {/* Favoritos primero */}
+                {favoriteMatches.length > 0 && (
+                  <View style={{ marginBottom: 8 }}>
+                    <SectionLabel title="Your favorites" icon="⭐" />
+                    {favoriteMatches.map(match => (
+                      <MatchCard
+                        key={match.id}
+                        match={match}
+                        isLive={activeTab === 0}
+                        onPress={() => navigation.navigate('MatchDetail', { match })}
+                      />
+                    ))}
+                  </View>
+                )}
+
+                {/* Resto de partidos */}
+                <View>
+                  {favoriteMatches.length > 0 && (
+                    <SectionLabel title="All matches" icon="🌍" />
+                  )}
+                  {otherMatches.map(match => (
+                    <MatchCard
+                      key={match.id}
+                      match={match}
+                      isLive={activeTab === 0}
+                      onPress={() => navigation.navigate('MatchDetail', { match })}
+                    />
+                  ))}
+                </View>
+              </>
             )}
+
+            {/* Refresh button */}
+            <TouchableOpacity onPress={loadMatches} style={{ alignItems: 'center', marginTop: 16 }}>
+              <Text style={{ color: colors.textTertiary, fontFamily: fonts.regular, fontSize: 13 }}>↻ Refresh</Text>
+            </TouchableOpacity>
           </>
         )}
       </ScrollView>

@@ -158,5 +158,19 @@ export function formatMatch(fixture) {
       : new Date(fixture.fixture.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
     status: fixture.fixture.status.short,
     prediction: null,
+
+    leagueId: fixture.league.id,
+home: {
+  id: fixture.teams.home.id,    // ← agrega este
+  name: fixture.teams.home.name,
+  logo: fixture.teams.home.logo,
+  score: fixture.goals.home ?? 0,
+},
+away: {
+  id: fixture.teams.away.id,    // ← agrega este
+  name: fixture.teams.away.name,
+  logo: fixture.teams.away.logo,
+  score: fixture.goals.away ?? 0,
+},
   };
 }
