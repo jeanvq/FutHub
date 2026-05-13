@@ -45,21 +45,6 @@ export async function getTodayMatches() {
   }
 }
 
-export async function getFixturesByLeague(leagueId) {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const response = await fetch(
-      `${BASE_URL}/fixtures?league=${leagueId}&season=${SEASON}&from=${today}&to=${today}`,
-      { headers }
-    );
-    const data = await response.json();
-    return data.response || [];
-  } catch (error) {
-    console.error('Error fetching fixtures:', error);
-    return [];
-  }
-}
-
 export async function getUpcomingFixtures(leagueId, next = 5) {
   try {
     const response = await fetch(
@@ -102,6 +87,30 @@ export async function getFixtureEvents(fixtureId) {
   }
 }
 
+export async function getFixturePrediction(fixtureId) {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/predictions?fixture=${fixtureId}`,
+      { headers }
+    );
+    const data = await response.json();
+    if (data.response && data.response.length > 0) {
+      const pred = data.response[0];
+      return {
+        homeWin: pred.predictions?.percent?.home?.replace('%', '') || null,
+        draw: pred.predictions?.percent?.draw?.replace('%', '') || null,
+        awayWin: pred.predictions?.percent?.away?.replace('%', '') || null,
+        winner: pred.predictions?.winner?.name || null,
+        advice: pred.predictions?.advice || null,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching prediction:', error);
+    return null;
+  }
+}
+
 function getCountryFlag(country) {
   const flags = {
     'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
@@ -111,6 +120,7 @@ function getCountryFlag(country) {
     'France': '🇫🇷',
     'Colombia': '🇨🇴',
     'World': '🌍',
+    'South America': '🌎',
     'Netherlands': '🇳🇱',
     'Portugal': '🇵🇹',
     'Brazil': '🇧🇷',
@@ -119,8 +129,7 @@ function getCountryFlag(country) {
     'USA': '🇺🇸',
     'Belgium': '🇧🇪',
     'Turkey': '🇹🇷',
-    'Greece': '🇬🇷',
-    'South America': '🌎',
+    'Scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
   };
   return flags[country] || '🌐';
 }
@@ -128,6 +137,7 @@ function getCountryFlag(country) {
 export function formatMatch(fixture) {
   return {
     id: fixture.fixture.id.toString(),
+    fixtureId: fixture.fixture.id,
     league: fixture.league.name,
     leagueIcon: getCountryFlag(fixture.league.country),
     leagueLogo: fixture.league.logo,
@@ -147,6 +157,6 @@ export function formatMatch(fixture) {
       ? `${fixture.fixture.status.elapsed}'`
       : new Date(fixture.fixture.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
     status: fixture.fixture.status.short,
-    prediction: Math.floor(Math.random() * 30) + 55,
+    prediction: null,
   };
 }
