@@ -6,10 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { colors, fonts } from '../theme';
 import { getLiveMatches, getTodayMatches, getUpcomingFixtures, formatMatch, LEAGUES } from '../api/football';
 import { useUser } from '../context/UserContext';
+import LeagueFilterModal from '../components/LeagueFilterModal';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY = process.env.EXPO_PUBLIC_FOOTBALL_KEY;
 const headers = { 'x-apisports-key': API_KEY };
+const currentYear = new Date().getFullYear();
+const SEASON = new Date().getMonth() >= 7 ? currentYear : currentYear - 1;
 
 function LiveBadge() {
   return (
@@ -160,7 +163,7 @@ function SearchResult({ item, onPress, onFavorite, isFav }) {
 
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
-  const { favoriteTeams, favoriteLeagues, toggleFavoriteTeam, toggleFavoriteLeague, isFavoriteTeam, isFavoriteLeague } = useUser();
+  const { favoriteTeams, favoriteLeagues, toggleFavoriteTeam, toggleFavoriteLeague, isFavoriteTeam, isFavoriteLeague, isActiveLeague } = useUser();
   const [activeTab, setActiveTab] = useState(0);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -168,7 +171,7 @@ export default function HomeScreen({ navigation }) {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-
+  const [showFilter, setShowFilter] = useState(false);
   useEffect(() => {
     loadMatches();
   }, [activeTab]);
@@ -237,11 +240,12 @@ export default function HomeScreen({ navigation }) {
   });
 
   const otherMatches = matches.filter(match => {
-    const homeFav = isFavoriteTeam(match.home.id);
-    const awayFav = isFavoriteTeam(match.away.id);
-    const leagueFav = isFavoriteLeague(match.leagueId);
-    return !homeFav && !awayFav && !leagueFav;
-  });
+  const homeFav = isFavoriteTeam(match.home.id);
+  const awayFav = isFavoriteTeam(match.away.id);
+  const leagueFav = isFavoriteLeague(match.leagueId);
+  const leagueActive = isActiveLeague(match.leagueId);
+  return !homeFav && !awayFav && !leagueFav && leagueActive;
+});
 
   const tabs = [t('tab_live'), t('tab_today'), t('tab_upcoming')];
 
@@ -267,13 +271,16 @@ export default function HomeScreen({ navigation }) {
                 </Text>
               </LinearGradient>
               <View style={{ flexDirection: 'row', gap: 12 }}>
-                <TouchableOpacity onPress={() => setShowSearch(true)}>
-                  <Text style={{ fontSize: 22 }}>🔍</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text style={{ fontSize: 22 }}>🔔</Text>
-                </TouchableOpacity>
-              </View>
+  <TouchableOpacity onPress={() => setShowSearch(true)}>
+    <Text style={{ fontSize: 22 }}>🔍</Text>
+  </TouchableOpacity>
+  <TouchableOpacity onPress={() => setShowFilter(true)}>
+    <Text style={{ fontSize: 22 }}>⚙️</Text>
+  </TouchableOpacity>
+  <TouchableOpacity>
+    <Text style={{ fontSize: 22 }}>🔔</Text>
+  </TouchableOpacity>
+</View>
             </>
           ) : (
             <>
@@ -421,6 +428,7 @@ export default function HomeScreen({ navigation }) {
           </>
         )}
       </ScrollView>
+      <LeagueFilterModal visible={showFilter} onClose={() => setShowFilter(false)} />
     </SafeAreaView>
   );
 }
