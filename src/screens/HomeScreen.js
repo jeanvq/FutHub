@@ -62,16 +62,16 @@ function MatchCard({ match, onPress, t, isLive }) {
           paddingHorizontal: 16, paddingTop: 10, paddingBottom: 6,
         }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-  {match.leagueLogo ? (
-    <Image source={{ uri: match.leagueLogo }} style={{ width: 18, height: 18 }} resizeMode="contain" />
-  ) : (
-    <Text style={{ fontSize: 12 }}>{match.leagueIcon}</Text>
-  )}
-  <Text style={{ color: colors.textSecondary, fontFamily: fonts.semibold, fontSize: 11 }}>
-    {match.league}
-  </Text>
-  <Text style={{ fontSize: 11 }}>{match.leagueCountryFlag}</Text>
-</View>
+            {match.leagueLogo ? (
+              <Image source={{ uri: match.leagueLogo }} style={{ width: 18, height: 18 }} resizeMode="contain" />
+            ) : (
+              <Text style={{ fontSize: 12 }}>{match.leagueIcon}</Text>
+            )}
+            <Text style={{ color: colors.textSecondary, fontFamily: fonts.semibold, fontSize: 11 }}>
+              {match.league}
+            </Text>
+            <Text style={{ fontSize: 11 }}>{match.leagueCountryFlag}</Text>
+          </View>
           {isLive && <LiveBadge />}
         </View>
 
@@ -107,32 +107,12 @@ function MatchCard({ match, onPress, t, isLive }) {
             </Text>
           </View>
         </View>
-
-        <LinearGradient
-          colors={['rgba(0,255,178,0.08)', 'rgba(0,207,255,0.08)']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-          style={{
-            flexDirection: 'row', alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: 16, paddingVertical: 10,
-            borderTopWidth: 0.5, borderTopColor: colors.cardBorder,
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-            <Text style={{ fontSize: 14, marginRight: 6 }}>🤖</Text>
-            <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 11, flex: 1 }}>
-              {t('ai_prediction')} · {match.home.name} {match.prediction}% {t('win_probability')}
-            </Text>
-          </View>
-          <Text style={{ color: colors.live, fontFamily: fonts.extrabold, fontSize: 16 }}>
-            {match.prediction}%
-          </Text>
-        </LinearGradient>
       </View>
     </TouchableOpacity>
   );
 }
 
+       
 function SearchResult({ item, onPress }) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
@@ -249,10 +229,12 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled">
-
-        {/* Header */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           {!showSearch ? (
             <>
@@ -284,11 +266,8 @@ export default function HomeScreen({ navigation }) {
               }}>
                 <Text style={{ fontSize: 16 }}>🔍</Text>
                 <TextInput
-                  style={{
-                    flex: 1, color: colors.textPrimary,
-                    fontFamily: fonts.regular, fontSize: 14,
-                  }}
-                  placeholder="Buscar equipos o ligas..."
+                  style={{ flex: 1, color: colors.textPrimary, fontFamily: fonts.regular, fontSize: 14 }}
+                  placeholder="Search teams or leagues..."
                   placeholderTextColor={colors.textTertiary}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -304,13 +283,12 @@ export default function HomeScreen({ navigation }) {
                 onPress={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
                 style={{ marginLeft: 12 }}
               >
-                <Text style={{ color: colors.live, fontFamily: fonts.semibold, fontSize: 14 }}>Cancelar</Text>
+                <Text style={{ color: colors.live, fontFamily: fonts.semibold, fontSize: 14 }}>Cancel</Text>
               </TouchableOpacity>
             </>
           )}
         </View>
 
-        {/* Search results */}
         {showSearch && (
           <View style={{ marginBottom: 16 }}>
             {searching && (
@@ -320,27 +298,22 @@ export default function HomeScreen({ navigation }) {
               <SearchResult
                 key={`${item.type}-${item.id}`}
                 item={item}
-                onPress={() => {
-                  setShowSearch(false);
-                  setSearchQuery('');
-                  setSearchResults([]);
-                }}
+                onPress={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }}
               />
             ))}
             {!searching && searchQuery.length >= 3 && searchResults.length === 0 && (
               <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 14, textAlign: 'center', marginTop: 20 }}>
-                No se encontraron resultados
+                No results found
               </Text>
             )}
             {searchQuery.length < 3 && searchQuery.length > 0 && (
               <Text style={{ color: colors.textTertiary, fontFamily: fonts.regular, fontSize: 13, textAlign: 'center', marginTop: 20 }}>
-                Escribe al menos 3 caracteres
+                Type at least 3 characters
               </Text>
             )}
           </View>
         )}
 
-        {/* Tabs */}
         {!showSearch && (
           <>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}>
@@ -370,7 +343,7 @@ export default function HomeScreen({ navigation }) {
                 {tabs[activeTab]}
               </Text>
               <TouchableOpacity onPress={loadMatches}>
-                <Text style={{ color: colors.live, fontFamily: fonts.semibold, fontSize: 13 }}>↻ Actualizar</Text>
+                <Text style={{ color: colors.live, fontFamily: fonts.semibold, fontSize: 13 }}>↻ Refresh</Text>
               </TouchableOpacity>
             </View>
 
@@ -385,7 +358,7 @@ export default function HomeScreen({ navigation }) {
               <View style={{ paddingTop: 60, alignItems: 'center' }}>
                 <Text style={{ fontSize: 40, marginBottom: 12 }}>⚽</Text>
                 <Text style={{ color: colors.textSecondary, fontFamily: fonts.semibold, fontSize: 16 }}>
-                  No hay partidos ahora mismo
+                  No matches right now
                 </Text>
               </View>
             ) : (
