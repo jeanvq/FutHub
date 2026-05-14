@@ -216,10 +216,10 @@ export default function PerfilScreen() {
                     )}
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: colors.textPrimary, fontFamily: fonts.semibold, fontSize: 14 }}>
-                        {league.name}
+                        {league.name || `Liga ID: ${league.id}`}
                       </Text>
                       <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 12 }}>
-                        {league.country}
+                        {league.country || ''}
                       </Text>
                     </View>
                     <TouchableOpacity
