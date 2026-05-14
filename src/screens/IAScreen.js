@@ -6,12 +6,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts } from '../theme';
 
 const QUICK_CHIPS = [
-  { key: 'predictions', icon: '📊' },
-  { key: 'curious', icon: '💡' },
-  { key: 'analysis', icon: '⚡' },
+  { key: 'predictions', icon: 'stats-chart', label: 'Predicciones', lib: 'Ionicons' },
+  { key: 'curious', icon: 'bulb-outline', label: 'Datos curiosos', lib: 'Ionicons' },
+  { key: 'analysis', icon: 'flash-outline', label: 'Análisis', lib: 'Ionicons' },
 ];
 
 function MessageBubble({ message }) {
@@ -26,10 +27,12 @@ function MessageBubble({ message }) {
       {!isUser && (
         <View style={{
           width: 32, height: 32, borderRadius: 16,
-          backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
-          alignItems: 'center', justifyContent: 'center', marginRight: 8, alignSelf: 'flex-end',
+          backgroundColor: colors.card,
+          borderWidth: 0.5, borderColor: colors.gradientStart + '40',
+          alignItems: 'center', justifyContent: 'center',
+          marginRight: 8, alignSelf: 'flex-end',
         }}>
-          <Text style={{ fontSize: 16 }}>🤖</Text>
+          <MaterialCommunityIcons name="robot-outline" size={18} color={colors.gradientStart} />
         </View>
       )}
       <View style={{
@@ -47,14 +50,21 @@ function MessageBubble({ message }) {
             <Text style={{ color: colors.background, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
               {message.content}
             </Text>
+            <Text style={{ color: 'rgba(0,0,0,0.4)', fontFamily: fonts.regular, fontSize: 10, marginTop: 4, textAlign: 'right' }}>
+              {message.time}
+            </Text>
           </LinearGradient>
         ) : (
           <View style={{
-            backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+            backgroundColor: colors.card,
+            borderWidth: 0.5, borderColor: colors.cardBorder,
             paddingHorizontal: 14, paddingVertical: 10,
           }}>
             <Text style={{ color: colors.textPrimary, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 }}>
               {message.content}
+            </Text>
+            <Text style={{ color: colors.textTertiary, fontFamily: fonts.regular, fontSize: 10, marginTop: 4 }}>
+              {message.time}
             </Text>
           </View>
         )}
@@ -62,10 +72,12 @@ function MessageBubble({ message }) {
       {isUser && (
         <View style={{
           width: 32, height: 32, borderRadius: 16,
-          backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
-          alignItems: 'center', justifyContent: 'center', marginLeft: 8, alignSelf: 'flex-end',
+          backgroundColor: colors.card,
+          borderWidth: 0.5, borderColor: colors.cardBorder,
+          alignItems: 'center', justifyContent: 'center',
+          marginLeft: 8, alignSelf: 'flex-end',
         }}>
-          <Text style={{ fontSize: 16 }}>👤</Text>
+          <Ionicons name="person-outline" size={16} color={colors.textSecondary} />
         </View>
       )}
     </View>
@@ -77,19 +89,26 @@ function TypingIndicator() {
     <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginBottom: 12, alignItems: 'center', gap: 8 }}>
       <View style={{
         width: 32, height: 32, borderRadius: 16,
-        backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+        backgroundColor: colors.card,
+        borderWidth: 0.5, borderColor: colors.gradientStart + '40',
         alignItems: 'center', justifyContent: 'center',
       }}>
-        <Text style={{ fontSize: 16 }}>🤖</Text>
+        <MaterialCommunityIcons name="robot-outline" size={18} color={colors.gradientStart} />
       </View>
       <View style={{
-        backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
-        paddingHorizontal: 14, paddingVertical: 12, borderRadius: 18, borderBottomLeftRadius: 4,
+        backgroundColor: colors.card,
+        borderWidth: 0.5, borderColor: colors.cardBorder,
+        paddingHorizontal: 14, paddingVertical: 12,
+        borderRadius: 18, borderBottomLeftRadius: 4,
       }}>
         <ActivityIndicator size="small" color={colors.live} />
       </View>
     </View>
   );
+}
+
+function getTime() {
+  return new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
 export default function IAScreen() {
@@ -98,7 +117,12 @@ export default function IAScreen() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([
-    { id: '0', role: 'assistant', content: t('ia_welcome') }
+    {
+      id: '0',
+      role: 'assistant',
+      content: t('ia_welcome'),
+      time: getTime(),
+    }
   ]);
 
   const scrollToBottom = () => {
@@ -109,20 +133,24 @@ export default function IAScreen() {
     const messageText = text || input.trim();
     if (!messageText || isLoading) return;
 
-    const userMessage = { id: Date.now().toString(), role: 'user', content: messageText };
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: messageText,
+      time: getTime(),
+    };
+
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
     scrollToBottom();
 
     try {
-      const systemPrompt = `Eres el asistente de IA de FutHub, una app de fútbol. 
-      Respondes preguntas sobre partidos, estadísticas,historia de partidos,datos de futbol, equipos, jugadores y predicciones de fútbol.
-      Eres experto en fútbol mundial, especialmente en Champions League, Premier League, La Liga, Bundesliga, Serie A y Liga BetPlay de Colombia.
-      Tus respuestas son concisas, informativas y en el mismo idioma que el usuario.
-      Cuando das predicciones, explicas brevemente el razonamiento basado en estadísticas y forma reciente.`;
+      const systemPrompt = `Eres FutIA, el asistente de inteligencia artificial de FutHub.
+      Eres experto en fútbol mundial — Champions League, Premier League, La Liga, Bundesliga, Serie A, Copa Libertadores, Copa Sudamericana y Liga BetPlay de Colombia.
+      Respondes en el mismo idioma que el usuario. Tus respuestas son concisas, precisas y apasionadas por el fútbol.
+      Cuando das predicciones, explicas brevemente el razonamiento basado en forma reciente y estadísticas.`;
 
-      console.log('KEY:', process.env.EXPO_PUBLIC_ANTHROPIC_KEY?.slice(0, 20));
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -142,22 +170,22 @@ export default function IAScreen() {
       });
 
       const data = await response.json();
-      console.log('RESPONSE:', JSON.stringify(data));
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.content?.[0]?.text || 'Lo siento, hubo un error. Intenta de nuevo.',
+        time: getTime(),
       };
       setMessages(prev => [...prev, assistantMessage]);
       scrollToBottom();
     } catch (error) {
-  setMessages(prev => [...prev, {
-    id: (Date.now() + 1).toString(),
-    role: 'assistant',
-    content: `Error: ${error.message} | Key: ${process.env.EXPO_PUBLIC_ANTHROPIC_KEY ? 'presente' : 'ausente'}`,
-  }]);
-}
-     finally {
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Error de conexión. Verifica tu internet e intenta de nuevo.',
+        time: getTime(),
+      }]);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -173,6 +201,8 @@ export default function IAScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+
+      {/* Header */}
       <View style={{
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
         paddingHorizontal: 16, paddingVertical: 14,
@@ -182,20 +212,30 @@ export default function IAScreen() {
           <LinearGradient
             colors={[colors.gradientStart, colors.gradientMid]}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-            style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' }}
+            style={{ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ fontSize: 18 }}>🤖</Text>
+            <MaterialCommunityIcons name="robot" size={20} color={colors.background} />
           </LinearGradient>
           <View>
-            <Text style={{ color: colors.textPrimary, fontFamily: fonts.bold, fontSize: 15 }}>FutHub IA</Text>
-            <Text style={{ color: colors.live, fontFamily: fonts.regular, fontSize: 11 }}>● En línea</Text>
+            <Text style={{ color: colors.textPrimary, fontFamily: fonts.extrabold, fontSize: 17 }}>
+              Fut<Text style={{ color: colors.gradientStart }}>IA</Text>
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.live }} />
+              <Text style={{ color: colors.live, fontFamily: fonts.regular, fontSize: 11 }}>En línea</Text>
+            </View>
           </View>
         </View>
-        <TouchableOpacity onPress={() => setMessages([{ id: '0', role: 'assistant', content: t('ia_welcome') }])}>
-          <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 13 }}>🗑 Limpiar</Text>
+        <TouchableOpacity
+          onPress={() => setMessages([{ id: '0', role: 'assistant', content: t('ia_welcome'), time: getTime() }])}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+        >
+          <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
+          <Text style={{ color: colors.textSecondary, fontFamily: fonts.regular, fontSize: 13 }}>Limpiar</Text>
         </TouchableOpacity>
       </View>
 
+      {/* Messages */}
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -206,6 +246,7 @@ export default function IAScreen() {
         ListFooterComponent={isLoading ? <TypingIndicator /> : null}
       />
 
+      {/* Quick chips */}
       {messages.length <= 1 && (
         <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 12 }}>
           {QUICK_CHIPS.map(chip => (
@@ -213,20 +254,23 @@ export default function IAScreen() {
               key={chip.key}
               onPress={() => handleQuickChip(chip.key)}
               style={{
-                flex: 1, backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+                flex: 1, backgroundColor: colors.card,
+                borderWidth: 0.5, borderColor: colors.cardBorder,
                 borderRadius: 20, paddingVertical: 8, paddingHorizontal: 10,
-                alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 4,
+                alignItems: 'center', flexDirection: 'row',
+                justifyContent: 'center', gap: 4,
               }}
             >
-              <Text style={{ fontSize: 14 }}>{chip.icon}</Text>
+              <Ionicons name={chip.icon} size={14} color={colors.textSecondary} />
               <Text style={{ color: colors.textSecondary, fontFamily: fonts.semibold, fontSize: 11 }}>
-                {t(`ia_quick_${chip.key}`)}
+                {chip.label}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
       )}
 
+      {/* Input */}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={{
           flexDirection: 'row', alignItems: 'center',
@@ -235,9 +279,11 @@ export default function IAScreen() {
         }}>
           <TextInput
             style={{
-              flex: 1, backgroundColor: colors.card, borderWidth: 0.5, borderColor: colors.cardBorder,
+              flex: 1, backgroundColor: colors.card,
+              borderWidth: 0.5, borderColor: colors.cardBorder,
               borderRadius: 24, paddingHorizontal: 16, paddingVertical: 10,
-              color: colors.textPrimary, fontFamily: fonts.regular, fontSize: 14, maxHeight: 100,
+              color: colors.textPrimary, fontFamily: fonts.regular,
+              fontSize: 14, maxHeight: 100,
             }}
             placeholder={t('ia_placeholder')}
             placeholderTextColor={colors.textTertiary}
@@ -247,7 +293,10 @@ export default function IAScreen() {
           />
           <TouchableOpacity onPress={() => sendMessage()} disabled={!input.trim() || isLoading}>
             <LinearGradient
-              colors={input.trim() && !isLoading ? [colors.gradientStart, colors.gradientMid] : [colors.card, colors.card]}
+              colors={input.trim() && !isLoading
+                ? [colors.gradientStart, colors.gradientMid]
+                : [colors.card, colors.card]
+              }
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={{
                 width: 44, height: 44, borderRadius: 22,
@@ -256,11 +305,16 @@ export default function IAScreen() {
                 borderColor: input.trim() && !isLoading ? colors.gradientStart : colors.cardBorder,
               }}
             >
-              <Text style={{ fontSize: 18 }}>➤</Text>
+              <Ionicons
+                name="send"
+                size={18}
+                color={input.trim() && !isLoading ? colors.background : colors.textTertiary}
+              />
             </LinearGradient>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
     </SafeAreaView>
   );
 }
