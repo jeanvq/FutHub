@@ -230,7 +230,7 @@ export default function FavoritosScreen({ navigation }) {
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                         <Text style={{ color: colors.textTertiary, fontSize: 16 }}>›</Text>
                         <TouchableOpacity onPress={() => toggleFavoriteTeam(team)}>
-                          <Text style={{ fontSize: 20 }}>💚</Text>
+                          <Text style={{ fontSize: 20 }}>🏆</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -300,7 +300,7 @@ export default function FavoritosScreen({ navigation }) {
                     </Text>
                   </View>
                   <Text style={{ fontSize: 22 }}>
-                    {isFavoriteLeague(league.id) ? '💚' : '🤍'}
+                    {isFavoriteLeague(league.id) ? '🏆' : '🫙'}
                   </Text>
                 </View>
               </TouchableOpacity>

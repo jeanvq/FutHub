@@ -219,7 +219,7 @@ function SearchResult({ item, onPress, onFavorite, isFav }) {
           </Text>
         </View>
         <TouchableOpacity onPress={() => onFavorite(item)} style={{ padding: 4 }}>
-          <Text style={{ fontSize: 22 }}>{isFav ? '💚' : '🤍'}</Text>
+          <Text style={{ fontSize: 22 }}>{isFav ? '🏆' : '🫙'}</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
