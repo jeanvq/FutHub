@@ -7,6 +7,7 @@ import { colors, fonts } from '../theme';
 
 import HomeScreen from '../screens/HomeScreen';
 import MatchDetailScreen from '../screens/MatchDetailScreen';
+import TeamDetailScreen from '../screens/TeamDetailScreen';
 import FavoritosScreen from '../screens/FavoritosScreen';
 import IAScreen from '../screens/IAScreen';
 import PerfilScreen from '../screens/PerfilScreen';
@@ -19,6 +20,7 @@ function HomeStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="MatchDetail" component={MatchDetailScreen} />
+      <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
     </Stack.Navigator>
   );
 }
