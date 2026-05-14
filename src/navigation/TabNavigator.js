@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, fonts } from '../theme';
 
 import HomeScreen from '../screens/HomeScreen';
@@ -12,48 +13,6 @@ import PerfilScreen from '../screens/PerfilScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-function TabIcon({ icon, label, focused }) {
-  return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 6 }}>
-      <Text style={{ fontSize: 20, marginBottom: 2 }}>{icon}</Text>
-      <Text style={{
-        fontSize: 10,
-        fontFamily: focused ? fonts.semibold : fonts.regular,
-        color: focused ? colors.tabActive : colors.tabInactive,
-      }}>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-function HomeTabIcon({ focused }) {
-  return (
-    <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 6 }}>
-      <View style={{
-        width: 28, height: 28, marginBottom: 2,
-        borderRadius: 8,
-        borderWidth: focused ? 1.5 : 0,
-        borderColor: colors.tabActive,
-        overflow: 'hidden',
-      }}>
-        <Image
-          source={require('../../assets/futhub-icon.png')}
-          style={{ width: '100%', height: '100%' }}
-          resizeMode="cover"
-        />
-      </View>
-      <Text style={{
-        fontSize: 10,
-        fontFamily: focused ? fonts.semibold : fonts.regular,
-        color: focused ? colors.tabActive : colors.tabInactive,
-      }}>
-        Inicio
-      </Text>
-    </View>
-  );
-}
 
 function HomeStack() {
   return (
@@ -74,23 +33,84 @@ export default function TabNavigator() {
           backgroundColor: colors.backgroundSecondary,
           borderTopColor: colors.cardBorder,
           borderTopWidth: 0.5,
-          height: 80,
-          paddingBottom: 0,
+          height: 85,
+          paddingBottom: 10,
+          paddingTop: 8,
         },
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: colors.tabActive,
+        tabBarInactiveTintColor: colors.tabInactive,
+        tabBarLabelStyle: {
+          fontFamily: fonts.semibold,
+          fontSize: 10,
+          marginTop: 2,
+        },
       }}
     >
-      <Tab.Screen name="Inicio" component={HomeStack}
-        options={{ tabBarIcon: ({ focused }) => <HomeTabIcon focused={focused} /> }}
+      <Tab.Screen
+        name="Inicio"
+        component={HomeStack}
+        options={{
+          tabBarLabel: t('tab_home'),
+          tabBarIcon: ({ focused, color, size }) => (
+            <View style={{ position: 'relative' }}>
+              {focused ? (
+                <Image
+                  source={require('../../assets/futhub-icon.png')}
+                  style={{
+                    width: 28, height: 28, borderRadius: 8,
+                    borderWidth: 1.5, borderColor: colors.tabActive,
+                  }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Ionicons name="home-outline" size={24} color={color} />
+              )}
+            </View>
+          ),
+        }}
       />
-      <Tab.Screen name="Favoritos" component={FavoritosScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="⭐" label={t('tab_favorites')} focused={focused} /> }}
+      <Tab.Screen
+        name="Favoritos"
+        component={FavoritosScreen}
+        options={{
+          tabBarLabel: t('tab_favorites'),
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? 'star' : 'star-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
       />
-      <Tab.Screen name="IA" component={IAScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="🤖" label={t('tab_ai')} focused={focused} /> }}
+      <Tab.Screen
+        name="IA"
+        component={IAScreen}
+        options={{
+          tabBarLabel: t('tab_ai'),
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialCommunityIcons
+              name={focused ? 'robot' : 'robot-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
       />
-      <Tab.Screen name="Perfil" component={PerfilScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="👤" label={t('tab_profile')} focused={focused} /> }}
+      <Tab.Screen
+        name="Perfil"
+        component={PerfilScreen}
+        options={{
+          tabBarLabel: t('tab_profile'),
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
       />
     </Tab.Navigator>
   );
